@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Study Master - BBC & Multi-Files</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #bb1919;
+            --primary-hover: #911313;
+            --revision-bg: #f8fafc;
+            --revision-border: #3b82f6;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text-main: #1e293b;
+            --text-sub: #64748b;
+            --border: #cbd5e1;
+            --success: #10b981;
+        }
+
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main); margin: 0; padding: 20px; line-height: 1.5; }
+        .container { max-width: 1500px; margin: 0 auto; }
+
+        header {
+            background: #ffffff; padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; border-top: 5px solid var(--primary);
+        }
+
+        .table-container { background: var(--card); border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; text-align: left; min-width: 1300px; table-layout: fixed; }
+        
+        th { background-color: #f8fafc; padding: 16px; font-weight: 700; color: var(--text-sub); text-transform: uppercase; font-size: 0.65rem; border-bottom: 2px solid var(--border); }
+        td { padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 0.85rem; vertical-align: top; }
+
+        tr.revision-row { background-color: #f0f7ff; }
+        .day-badge { background: #334155; color: white; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; }
+        .revision-badge { background: var(--revision-border); color: white; padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; }
+
+        /* Botões Estilizados */
+        .btn-done { background: var(--primary); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; transition: 0.2s; }
+        .btn-done:hover { background: var(--primary-hover); }
+        .btn-rev-done { background: var(--revision-border); color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; font-weight: 600; width: 100%; }
+
+        /* Sistema de Arquivos Múltiplos */
+        .file-section { display: flex; flex-direction: column; gap: 8px; }
+        .file-list { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 5px; }
+        .file-chip { 
+            display: flex; align-items: center; background: #e2e8f0; padding: 4px 8px; 
+            border-radius: 15px; font-size: 0.7rem; gap: 5px; max-width: 140px; border: 1px solid #cbd5e1;
+        }
+        .file-chip a { text-decoration: none; color: #1e293b; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+        .btn-del-file { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.9rem; padding: 0; }
+        
+        .add-file-btn {
+            background: #ffffff; border: 1px dashed var(--border); padding: 5px; 
+            border-radius: 6px; cursor: pointer; text-align: center; font-size: 0.7rem; color: var(--text-sub); transition: 0.2s;
+        }
+        .add-file-btn:hover { border-color: var(--primary); color: var(--primary); background: #fff1f2; }
+
+        /* Conclusão e Status */
+        .comp-box { display: flex; flex-direction: column; gap: 4px; }
+        .comp-date { color: var(--success); font-weight: 700; font-size: 0.75rem; line-height: 1.1; }
+        .comp-date span { font-size: 0.65rem; color: #94a3b8; font-weight: 400; display: block; }
+        .undo-link { color: #94a3b8; text-decoration: underline; font-size: 0.65rem; cursor: pointer; }
+        .undo-link:hover { color: #ef4444; }
+
+        select { padding: 6px; border-radius: 6px; border: 1px solid var(--border); font-weight: 600; width: 100%; font-size: 0.8rem; }
+        .status-ok { background: #dcfce7; color: #166534; }
+        .status-parcial { background: #fef9c3; color: #854d0e; }
+        .status-refazer { background: #fee2e2; color: #991b1b; }
+        
+        textarea { width: 100%; border: 1px solid var(--border); border-radius: 6px; padding: 8px; font-family: inherit; font-size: 0.8rem; resize: vertical; min-height: 40px; box-sizing: border-box; }
+        
+        .reset-btn { background: transparent; color: #94a3b8; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.75rem; }
+        .reset-btn:hover { background: #fee2e2; color: #ef4444; border-color: #fecaca; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <div>
+            <h1>English Study Master</h1>
+            <p style="margin: 5px 0 0 0; color: var(--text-sub); font-size: 0.9rem;">BBC Georgie + Gestão de Múltiplos Arquivos e Fotos</p>
+        </div>
+        <button class="reset-btn" onclick="resetProgress()">Reiniciar Todo o Banco de Dados</button>
+    </header>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th width="70">Dia</th>
+                    <th width="200">Tema do Estudo</th>
+                    <th width="80">Aula</th>
+                    <th width="220">Meus Arquivos / Fotos</th>
+                    <th width="50" style="text-align:center">Rev.</th>
+                    <th width="110">Status</th>
+                    <th width="160">Conclusão</th>
+                    <th width="250">Observações</th>
+                </tr>
+            </thead>
+            <tbody id="tracker-body"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const bbcBase = "https://www.bbc.co.uk/learningenglish/english/features/tenses_with_georgie/";
+    const rawLessons = [
+        { t: "Present Simple", url: bbcBase + "ep-240126" },
+        { t: "Present Continuous", url: bbcBase + "ep-240202" },
+        { t: "Present Perfect", url: bbcBase + "ep-240209" },
+        { t: "Present Perfect Continuous", url: bbcBase + "ep-240216" },
+        { t: "Past Simple", url: bbcBase + "ep-240223" },
+        { t: "Past Continuous", url: bbcBase + "ep-240301" },
+        { t: "Past Perfect", url: bbcBase + "ep-240308" },
+        { t: "Past Perfect Continuous", url: bbcBase + "ep-240315" },
+        { t: "Future Simple (will)", url: bbcBase + "ep-240322" },
+        { t: "Future Simple (going to)", url: bbcBase + "ep-240329" },
+        { t: "Future Continuous", url: bbcBase + "ep-240405" },
+        { t: "Future Perfect", url: bbcBase + "ep-240412" },
+        { t: "Future Perfect Continuous", url: bbcBase + "ep-240419" },
+        { t: "State Verbs", url: bbcBase + "ep-240426" },
+        { t: "Past Habits (used to / would)", url: bbcBase + "ep-240510" }
+    ];
+
+    let schedule = [];
+    let lessonCount = 0;
+    let accumulated = [];
+    rawLessons.forEach((l, i) => {
+        schedule.push({ ...l, type: 'lesson' });
+        accumulated.push(l.t);
+        lessonCount++;
+        if (lessonCount % 3 === 0 || i === rawLessons.length - 1) {
+            schedule.push({ t: "REVISÃO ACUMULADA", topics: [...accumulated], type: 'revision', url: bbcBase });
+        }
+    });
+
+    const STORAGE_KEY = 'tracker_data_v6';
+    let db;
+
+    // Inicialização do Banco de Dados para suportar múltiplos arquivos
+    const req = indexedDB.open("StudyFilesDB_V6", 1);
+    req.onupgradeneeded = e => { e.target.result.createObjectStore("files", { keyPath: "dayId" }); };
+    req.onsuccess = e => { db = e.target.result; renderTable(); };
+
+    async function renderTable() {
+        const tbody = document.getElementById('tracker-body');
+        const state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+        tbody.innerHTML = '';
+
+        for (let [i, item] of schedule.entries()) {
+            const dayId = `day-${i}`;
+            const rowData = state[dayId] || { review: false, status: 'OK', obs: '', completedAt: null };
+            const files = await getFiles(dayId) || [];
+
+            const tr = document.createElement('tr');
+            if (item.type === 'revision') tr.className = 'revision-row';
+
+            // Coluna de Arquivos
+            let fileHTML = `<div class="file-section">
+                <div class="file-list">
+                    ${files.map((f, fIndex) => `
+                        <div class="file-chip">
+                            <a href="${f.content}" download="${f.name}">${f.name}</a>
+                            <button class="btn-del-file" onclick="deleteSingleFile('${dayId}', ${fIndex})">✕</button>
+                        </div>
+                    `).join('')}
+                </div>
+                <label class="add-file-btn">
+                    + Adicionar Arquivo/Foto
+                    <input type="file" multiple style="display:none" onchange="uploadMultiple('${dayId}', this)">
+                </label>
+            </div>`;
+
+            const badge = item.type === 'lesson' ? `<span class="day-badge">DIA ${i + 1}</span>` : `<span class="revision-badge">REVISÃO</span>`;
+            const subj = item.type === 'lesson' ? `<strong>${item.t}</strong>` : `<small><b>Temas:</b> ${item.topics.join(', ')}</small>`;
+            const btnCls = item.type === 'lesson' ? 'btn-done' : 'btn-rev-done';
+            
+            let actionArea = rowData.completedAt ? 
+                `<div class="comp-box"><div class="comp-date">✓ FINALIZADO<span>${rowData.completedAt}</span></div><div class="undo-link" onclick="undoComp('${dayId}')">Alterar / Desfazer</div></div>` :
+                `<button class="${btnCls}" onclick="doComp('${dayId}')">Concluir</button>`;
+
+            const statCls = rowData.status === 'OK' ? 'status-ok' : (rowData.status === 'Parcial' ? 'status-parcial' : 'status-refazer');
+
+            tr.innerHTML = `
+                <td>${badge}</td>
+                <td>${subj}</td>
+                <td><a href="${item.url}" target="_blank" style="color:var(--primary); font-weight:bold; text-decoration:none;">🔗 Link</a></td>
+                <td>${fileHTML}</td>
+                <td style="text-align:center"><input type="checkbox" onchange="save('${dayId}', 'review', this.checked)" ${rowData.review ? 'checked' : ''}></td>
+                <td>
+                    <select class="${statCls}" onchange="save('${dayId}', 'status', this.value); renderTable()">
+                        <option value="OK" ${rowData.status === 'OK' ? 'selected' : ''}>OK</option>
+                        <option value="Parcial" ${rowData.status === 'Parcial' ? 'selected' : ''}>Parcial</option>
+                        <option value="Refazer" ${rowData.status === 'Refazer' ? 'selected' : ''}>Refazer</option>
+                    </select>
+                </td>
+                <td>${actionArea}</td>
+                <td><textarea onchange="save('${dayId}', 'obs', this.value)">${rowData.obs}</textarea></td>
+            `;
+            tbody.appendChild(tr);
+        }
+    }
+
+    // Gerenciamento de Arquivos Múltiplos
+    async function uploadMultiple(dayId, input) {
+        const files = Array.from(input.files);
+        let existing = await getFiles(dayId) || [];
+
+        for (let file of files) {
+            const content = await fileToDataURL(file);
+            existing.push({ name: file.name, content });
+        }
+
+        const tx = db.transaction(["files"], "readwrite");
+        tx.objectStore("files").put({ dayId, fileArray: existing });
+        tx.oncomplete = () => renderTable();
+    }
+
+    async function deleteSingleFile(dayId, index) {
+        let existing = await getFiles(dayId);
+        existing.splice(index, 1);
+        const tx = db.transaction(["files"], "readwrite");
+        tx.objectStore("files").put({ dayId, fileArray: existing });
+        tx.oncomplete = () => renderTable();
+    }
+
+    function getFiles(dayId) {
+        return new Promise(res => {
+            const req = db.transaction(["files"], "readonly").objectStore("files").get(dayId);
+            req.onsuccess = () => res(req.result ? req.result.fileArray : []);
+        });
+    }
+
+    function fileToDataURL(file) {
+        return new Promise(res => {
+            const reader = new FileReader();
+            reader.onload = e => res(e.target.result);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Persistência Básica
+    function save(dayId, field, val) {
+        const state = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+        if (!state[dayId]) state[dayId] = {};
+        state[dayId][field] = val;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function doComp(dayId) {
+        const now = new Date();
+        const stamp = now.toLocaleDateString('pt-BR') + ' às ' + now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        save(dayId, 'completedAt', stamp);
+        renderTable();
+    }
+
+    function undoComp(dayId) {
+        save(dayId, 'completedAt', null);
+        renderTable();
+    }
+
+    function resetProgress() {
+        if (confirm("ATENÇÃO: Isso apagará seu progresso e TODOS os arquivos anexados permanentemente. Deseja continuar?")) {
+            localStorage.removeItem(STORAGE_KEY);
+            const tx = db.transaction(["files"], "readwrite");
+            tx.objectStore("files").clear();
+            tx.oncomplete = () => location.reload();
+        }
+    }
+</script>
+</body>
+</html>
